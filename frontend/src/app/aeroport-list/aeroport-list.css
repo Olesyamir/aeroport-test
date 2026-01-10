@@ -1,0 +1,76 @@
+@import "../vol-list/vol-list.css";
+
+:host {
+  display: block;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  background: linear-gradient(135deg, #051932, #16283c);
+}
+
+.page-header h1 {
+  font-size: 2.6rem;
+}
+
+.page-header .subtitle {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.card-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-header h3::before {
+  content: "✈";
+  font-size: 1.1rem;
+}
+
+.modern-table th:nth-child(3),
+.modern-table td:nth-child(3) {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.modern-table th:nth-child(6),
+.modern-table th:nth-child(7),
+.modern-table th:nth-child(8),
+.modern-table th:nth-child(9) {
+  text-align: center;
+}
+
+.modern-table td:nth-child(6),
+.modern-table td:nth-child(7),
+.modern-table td:nth-child(8),
+.modern-table td:nth-child(9) {
+  text-align: center;
+}
+
+.badge {
+  background: #051932;
+}
+
+.actions-cell button {
+  min-width: 84px;
+}
+
+.empty-icon {
+  font-size: 3rem;
+}
+
+.error-message {
+  margin: 1rem 2rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  font-size: 0.9rem;
+}

@@ -1,0 +1,85 @@
+<div class="page-header">
+  <h1>Gestion des Pistes</h1>
+  <p class="subtitle">Gérez les pistes d'atterrissage et de décollage</p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Ajouter une nouvelle piste</h3>
+  </div>
+  <form (ngSubmit)="ajouterPiste()" #pisteForm="ngForm" class="form-grid">
+    <div class="form-group">
+      <label for="longueur">Longueur (m)</label>
+      <input id="longueur" type="number" [(ngModel)]="newPiste.longueur" name="longueur" placeholder="Ex: 3000" required>
+    </div>
+
+    <div class="form-group">
+      <label for="etat">État</label>
+      <select id="etat" [(ngModel)]="newPiste.etat" name="etat" required>
+        <option value="">--Sélectionner--</option>
+        <option value="LIBRE">LIBRE</option>
+        <option value="OCCUPE">OCCUPÉE</option>
+        <option value="MAINTENANCE">MAINTENANCE</option>
+      </select>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Ajouter la piste</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Liste des pistes</h3>
+    <span class="badge">{{ pistes.length }} piste(s)</span>
+  </div>
+  <div class="table-container">
+    <table class="modern-table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Longueur (m)</th>
+        <th>État</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let piste of pistes" class="table-row">
+        <td>{{ piste.id }}</td>
+
+        <!-- Longueur -->
+        <td *ngIf="editingId !== piste.id">{{ piste.longueur }}</td>
+        <td *ngIf="editingId === piste.id">
+          <input type="number" [(ngModel)]="piste.longueur" name="longueur-{{piste.id}}">
+        </td>
+
+        <!-- État -->
+        <td *ngIf="editingId !== piste.id">{{ piste.etat }}</td>
+        <td *ngIf="editingId === piste.id">
+          <select [(ngModel)]="piste.etat" name="etat-{{piste.id}}">
+            <option value="LIBRE">LIBRE</option>
+            <option value="OCCUPE">OCCUPÉE</option>
+            <option value="MAINTENANCE">MAINTENANCE</option>
+          </select>
+        </td>
+
+        <!-- Actions -->
+        <td class="actions-cell">
+          <button class="btn btn-danger btn-sm" (click)="supprimerPiste(piste.id)" title="Supprimer">Supprimer</button>
+          <button class="btn btn-warning btn-sm" *ngIf="editingId !== piste.id" (click)="modifierPiste(piste.id)" title="Modifier">Modifier</button>
+          <button class="btn btn-success btn-sm" *ngIf="editingId === piste.id" (click)="sauvegarderModification()" title="Sauvegarder">Sauvegarder</button>
+          <button class="btn btn-secondary btn-sm" *ngIf="editingId === piste.id" (click)="annulerModification()" title="Annuler">Annuler</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="pistes.length === 0" class="empty-state">
+    <div class="empty-icon">✈️</div>
+    <h3>Aucune piste trouvée</h3>
+    <p>Commencez par ajouter votre première piste ci-dessus.</p>
+  </div>
+</div>
+

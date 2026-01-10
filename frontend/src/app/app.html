@@ -1,0 +1,60 @@
+<div class="app-container">
+  <header class="topbar">
+    <button class="menu-toggle" type="button" (click)="toggleMenu()">
+      ☰
+    </button>
+    <span class="topbar-title">Aéroport SI</span>
+  </header>
+
+  <div class="app-body">
+    <nav class="sidebar" *ngIf="menuOpen">
+      <h3>Menu</h3>
+      <ul>
+        <li>
+          <button routerLink="/" type="button" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            Accueil
+          </button>
+        </li>
+        <li>
+          <button routerLink="/avions" type="button" routerLinkActive="active">
+            Avions
+          </button>
+        </li>
+        <li>
+          <button routerLink="/hangars" type="button" routerLinkActive="active">
+            Hangars
+          </button>
+        </li>
+        <li>
+          <button routerLink="/pistes" type="button" routerLinkActive="active">
+            Pistes
+          </button>
+        </li>
+        <li>
+          <button routerLink="/vols" type="button" routerLinkActive="active">
+            Vols
+          </button>
+        </li>
+        <li>
+          <button routerLink="/historiques" type="button" routerLinkActive="active">
+            Historique
+          </button>
+        </li>
+        <li>
+          <button routerLink="/planningPistes" type="button" routerLinkActive="active">
+            Planning Pistes
+          </button>
+        </li>
+        <li>
+          <button routerLink="/aeroports" type="button" routerLinkActive="active">
+            Aéroports
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

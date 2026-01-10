@@ -1,0 +1,88 @@
+<script src="hangar-list.ts"></script>
+<script src="../services/volService/vol.ts"></script>
+<div class="page-header">
+  <h1>🏢 Gestion des Hangars</h1>
+  <p class="subtitle">Gérez les hangars et leur capacité de stockage</p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>➕ Ajouter un nouveau hangar</h3>
+  </div>
+  <form (ngSubmit)="ajouterHangar()" #hangarForm="ngForm" class="form-grid">
+    <div class="form-group">
+      <label for="capacite">Capacité</label>
+      <input id="capacite" type="number" [(ngModel)]="newHangar.capacite" name="capacite" placeholder="Ex: 5" required>
+    </div>
+
+    <div class="form-group">
+      <label for="etat">État</label>
+      <select id="etat" [(ngModel)]="newHangar.etat" name="etat" required>
+        <option value="">--Sélectionner--</option>
+        <option value="LIBRE">✅ LIBRE</option>
+        <option value="OCCUPE">📦 OCCUPE</option>
+        <option value="MAINTENANCE">🔧 MAINTENANCE</option>
+      </select>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">➕ Ajouter le hangar</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>📋 Liste des hangars</h3>
+    <span class="badge">{{ hangars.length }} hangar(s)</span>
+  </div>
+  <div class="table-container">
+    <table class="modern-table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Capacité</th>
+        <th>État</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let hangar of hangars" class="table-row">
+        <td>{{ hangar.id }}</td>
+
+        <td *ngIf="editingId !== hangar.id">{{ hangar.capacite }}</td>
+        <td *ngIf="editingId === hangar.id">
+          <input type="number" [(ngModel)]="hangar.capacite"
+                 [ngModelOptions]="{standalone: true}"
+                 name="capacite-{{hangar.id}}"
+          >
+        </td>
+
+        <td *ngIf="editingId !== hangar.id">{{ hangar.etat }}</td>
+        <td *ngIf="editingId === hangar.id">
+          <select [(ngModel)]="hangar.etat"
+                  [ngModelOptions]="{standalone: true}"
+                  name="etat-{{hangar.id}}">
+            <option value="LIBRE">LIBRE</option>
+            <option value="OCCUPE">OCCUPE</option>
+            <option value="MAINTENANCE">MAINTENANCE</option>
+          </select>
+        </td>
+
+        <td class="actions-cell">
+          <button class="btn btn-danger btn-sm" (click)="supprimerHangar(hangar.id)" title="Supprimer">🗑️</button>
+          <button class="btn btn-warning btn-sm" *ngIf="editingId !== hangar.id" (click)="modifierHangar(hangar.id)" title="Modifier">✏️</button>
+          <button class="btn btn-success btn-sm" *ngIf="editingId === hangar.id" (click)="sauvegarderModification()" title="Sauvegarder">💾</button>
+          <button class="btn btn-secondary btn-sm" *ngIf="editingId === hangar.id" (click)="annulerModification()" title="Annuler">❌</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="hangars.length === 0" class="empty-state">
+    <div class="empty-icon">🏢</div>
+    <h3>Aucun hangar trouvé</h3>
+    <p>Commencez par ajouter votre premier hangar ci-dessus</p>
+  </div>
+</div>

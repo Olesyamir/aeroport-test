@@ -1,0 +1,257 @@
+<div class="page-header">
+    <h1>Gestion du planning des pistes</h1>
+    <p class="subtitle">Planifiez les créneaux de piste et
+        les vols associés</p>
+</div>
+
+<!-- FORMULAIRE AJOUT -->
+<div class="card">
+    <div class="card-header">
+        <h3>Ajouter un nouveau planning de piste</h3>
+    </div>
+
+    <form (ngSubmit)="ajouterPlanningPistes()"
+          #planningForm="ngForm" class="form-grid">
+
+        <div class="form-group">
+            <label for="startTime">Heure de début</label>
+            <input
+                    id="startTime"
+                    type="time"
+                    [(ngModel)]="newPlanningPistes.startTime"
+                    name="startTime"
+                    required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="endTime">Heure de fin</label>
+            <input
+                    id="endTime"
+                    type="time"
+                    [(ngModel)]="newPlanningPistes.endTime"
+                    name="endTime"
+                    required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="priorite">Priorité</label>
+            <select
+                    id="priorite"
+                    [(ngModel)]="newPlanningPistes.priorite"
+                    name="priorite"
+                    required
+            >
+                <option value="">--Sélectionner--</option>
+                <option value="NORMALE">Normale</option>
+                <option value="HAUTE">Haute</option>
+                <option value="URGENCE">Urgence</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="usage">Usage</label>
+            <select
+                    id="usage"
+                    [(ngModel)]="newPlanningPistes.usage"
+                    name="usage"
+                    required
+            >
+                <option value="">--Sélectionner--</option>
+                <option value="DECOLLAGE">Décollage</option>
+                <option value="ATTERISSAGE">Atterrissage</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="remarques">Remarques</label>
+            <input
+                    id="remarques"
+                    type="text"
+                    [(ngModel)]="newPlanningPistes.remarques"
+                    name="remarques"
+                    placeholder="Infos complémentaires"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="volIds">Vols associés</label>
+            <!-- select multiple simple -->
+            <select
+                    id="volIds"
+                    multiple
+                    [(ngModel)]="newPlanningPistes.volIds"
+                    name="volIds"
+                    size="5"
+            >
+                <option *ngFor="let v of vols" [ngValue]="v.id">
+                    Vol {{ v.id }} ({{ v.numeroVol }})
+                </option>
+            </select>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                Ajouter le planning
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- LISTE -->
+<div class="card">
+    <div class="card-header">
+        <h3>Liste des plannings de pistes</h3>
+        <span class="badge">{{ planningPistes.length }}
+            planning(s)</span>
+    </div>
+
+    <div class="table-container">
+        <table class="modern-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Priorité</th>
+                <th>Usage</th>
+                <th>Remarques</th>
+                <th>Vols (ids)</th>
+                <th>Statuts des vols</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr *ngFor="let pp of planningPistes" class="table-
+  row">
+                <td>{{ pp.id }}</td>
+
+                <!-- startTime -->
+                <td *ngIf="editingId !== pp.id">{{ pp.startTime }}
+                </td>
+                <td *ngIf="editingId === pp.id">
+                    <input
+                            type="time"
+                            [(ngModel)]="pp.startTime"
+                            name="startTime-{{pp.id}}"
+                    >
+                </td>
+
+                <!-- endTime -->
+                <td *ngIf="editingId !== pp.id">{{ pp.endTime }}
+                </td>
+                <td *ngIf="editingId === pp.id">
+                    <input
+                            type="time"
+                            [(ngModel)]="pp.endTime"
+                            name="endTime-{{pp.id}}"
+                    >
+                </td>
+
+                <!-- priorite -->
+                <td *ngIf="editingId !== pp.id">{{ pp.priorite }}
+                </td>
+                <td *ngIf="editingId === pp.id">
+                    <select [(ngModel)]="pp.priorite"
+                            name="priorite-{{pp.id}}">
+                        <option value="NORMALE">NORMALE</option>
+                        <option value="HAUTE">HAUTE</option>
+                        <option value="URGENCE">URGENCE</option>
+                    </select>
+                </td>
+
+                <!-- usage -->
+                <td *ngIf="editingId !== pp.id">{{ pp.usage }}</td>
+                <td *ngIf="editingId === pp.id">
+                    <select [(ngModel)]="pp.usage"
+                            name="usage-{{pp.id}}">
+                        <option value="DECOLLAGE">DECOLLAGE</option>
+                        <option value="ATTERISSAGE">ATTERISSAGE</option>
+                    </select>
+                </td>
+
+                <!-- remarques -->
+                <td *ngIf="editingId !== pp.id">{{ pp.remarques }}
+                </td>
+                <td *ngIf="editingId === pp.id">
+                    <input
+                            type="text"
+                            [(ngModel)]="pp.remarques"
+                            name="remarques-{{pp.id}}"
+                    >
+                </td>
+
+                <!-- vols -->
+                <td *ngIf="editingId !== pp.id">
+                    {{ pp.volIds.join(', ') }}
+                </td>
+                <td *ngIf="editingId === pp.id">
+                    <select
+                            multiple
+                            [(ngModel)]="pp.volIds"
+                            name="vols-{{pp.id}}"
+                            size="5"
+                    >
+                        <option *ngFor="let v of
+  vols" [ngValue]="v.id">
+                            Vol {{ v.id }} ({{ v.numeroVol }})
+                        </option>
+                    </select>
+                </td>
+
+                <!-- statuts vols (lecture seule) -->
+                <td>
+                    {{ pp.volStatut?.join(', ') }}
+                </td>
+
+                <!-- actions -->
+                <td class="actions-cell">
+                    <button
+                            class="btn btn-danger btn-sm"
+                            (click)="supprimerPlanningPistes(pp.id)"
+                            title="Supprimer"
+                    >
+                        Supprimer
+                    </button>
+
+                    <button
+                            class="btn btn-warning btn-sm"
+                            *ngIf="editingId !== pp.id"
+                            (click)="modifierPlanningPistes(pp.id)"
+                            title="Modifier"
+                    >
+                        Modifier
+                    </button>
+
+                    <button
+                            class="btn btn-success btn-sm"
+                            *ngIf="editingId === pp.id"
+                            (click)="sauvegarderModification()"
+                            title="Sauvegarder"
+                    >
+                        Sauvegarder
+                    </button>
+
+                    <button
+                            class="btn btn-secondary btn-sm"
+                            *ngIf="editingId === pp.id"
+                            (click)="annulerModification()"
+                            title="Annuler"
+                    >
+                        Annuler
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div *ngIf="planningPistes.length === 0" class="empty-
+  state">
+        <div class="empty-icon">ℹ</div>
+        <h3>Aucun planning trouvé</h3>
+        <p>Commencez par ajouter un planning ci-dessus.</p>
+    </div>
+</div>

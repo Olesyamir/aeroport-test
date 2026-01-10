@@ -1,0 +1,230 @@
+<script src="avion-list.ts"></script>
+<script src="../vol-list/vol-list.ts"></script>
+<script src="../data/Vol.ts"></script>
+<script src="../services/volService/vol.ts"></script>
+<script src="../services/avionService/avion.ts"></script>
+
+<div class="page-header">
+    <h1>Gestion des Avions</h1>
+    <p class="subtitle">Gérez votre flotte d'avions en temps réel</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Recherche d'avion par immatriculation</h3>
+    </div>
+    <form (ngSubmit)="rechercherAvionParImmatriculation()" class="form-grid">
+        <div class="form-group">
+            <label for="searchNumImmatricule">Immatriculation</label>
+            <input id="searchNumImmatricule"
+                   type="text"
+                   [(ngModel)]="searchNumImmatricule"
+                   name="searchNumImmatricule"
+                   placeholder="Ex: F-GKXY">
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-secondary">Rechercher</button>
+        </div>
+    </form>
+
+    <div *ngIf="avionRecherche" class="table-container">
+        <table class="modern-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Immatriculation</th>
+                <th>Type</th>
+                <th>État</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ avionRecherche.id }}</td>
+                <td>{{ avionRecherche.nom }}</td>
+                <td>{{ avionRecherche.numImmatricule }}</td>
+                <td>{{ avionRecherche.type }}</td>
+                <td>{{ avionRecherche.etat }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div *ngIf="!avionRecherche && erreurRecherche" class="empty-state">
+        <p>{{ erreurRecherche }}</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Ajouter un nouvel avion</h3>
+    </div>
+    <div *ngIf="creationMessage" class="error-message">
+        {{ creationMessage }}
+    </div>
+    <form (ngSubmit)="ajouterAvion()" #avionForm="ngForm" class="form-grid">
+        <div class="form-group">
+            <label for="nom">Nom de l'avion</label>
+            <input id="nom" type="text" [(ngModel)]="newAvion.nom" name="nom" placeholder="Ex: Airbus A320" required>
+        </div>
+
+        <div class="form-group">
+            <label for="immat">Immatriculation</label>
+            <input id="immat" type="text" [(ngModel)]="newAvion.numImmatricule" name="numImmatricule" placeholder="Ex: F-GKXY" required>
+        </div>
+
+        <div class="form-group">
+            <label for="type">Type</label>
+            <input id="type" type="text" [(ngModel)]="newAvion.type" name="type" placeholder="Ex: Commercial" required>
+        </div>
+
+        <div class="form-group">
+            <label for="capacite">Capacité</label>
+            <input id="capacite" type="number" [(ngModel)]="newAvion.capacite" name="capacite" placeholder="Ex: 180" required>
+        </div>
+
+        <div class="form-group">
+            <label for="etat">État</label>
+            <select id="etat" [(ngModel)]="newAvion.etat" name="etatMateriel">
+                <option value="">--Sélectionner--</option>
+                <option value="AUSOL">Au Sol</option>
+                <option value="ENVOL">En Vol</option>
+                <option value="MAINTENANCE">Maintenance</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="hangar">Hangar</label>
+            <select id="hangar" [(ngModel)]="newAvion.hangarId" name="hangar">
+                <option [ngValue]="null">--Aucun--</option>
+                <option *ngFor="let h of hangars" [ngValue]="h.id">
+                    Hangar {{ h.id }} (Capacité {{ h.capacite }})
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <mat-form-field appearance="outline" style="width: 100%;">
+                <mat-label>Vols</mat-label>
+                <mat-select
+                        [(ngModel)]="newAvion.volIds"
+                        name="volIds"
+                        multiple
+                >
+                    <mat-option *ngFor="let v of vols" [value]="v.id">
+                        vol {{ v.id }} ({{ v.numeroVol }})
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Ajouter l'avion</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Liste des avions</h3>
+        <span class="badge">{{ avions.length }} avion(s)</span>
+    </div>
+    <div *ngIf="editionMessage" class="error-message">
+        {{ editionMessage }}
+    </div>
+    <div class="table-container">
+        <table class="modern-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Immatriculation</th>
+                <th>Type</th>
+                <th>Capacité</th>
+                <th>État</th>
+                <th>Hangar</th>
+                <th>Vols</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let avion of avions" class="table-row">
+
+                <td>{{ avion.id }}</td>
+
+                <td *ngIf="editingId !== avion.id">{{ avion.nom }}</td>
+                <td *ngIf="editingId === avion.id">
+                    <input [(ngModel)]="avion.nom" name="nom-{{avion.id}}">
+                </td>
+
+                <td *ngIf="editingId !== avion.id">{{ avion.numImmatricule }}</td>
+                <td *ngIf="editingId === avion.id">
+                    <input [(ngModel)]="avion.numImmatricule" name="immat-{{avion.id}}">
+                </td>
+
+                <td *ngIf="editingId !== avion.id">{{ avion.type }}</td>
+                <td *ngIf="editingId === avion.id">
+                    <input [(ngModel)]="avion.type" name="type-{{avion.id}}">
+                </td>
+
+                <td *ngIf="editingId !== avion.id">{{ avion.capacite }}</td>
+                <td *ngIf="editingId === avion.id">
+                    <input type="number" [(ngModel)]="avion.capacite" name="capacite-{{avion.id}}">
+                </td>
+
+                <td *ngIf="editingId !== avion.id">{{ avion.etat }}</td>
+                <td *ngIf="editingId === avion.id">
+                    <select [(ngModel)]="avion.etat" name="etat-{{avion.id}}">
+                        <option value="AUSOL">AUSOL</option>
+                        <option value="ENVOL">ENVOL</option>
+                        <option value="MAINTENANCE">MAINTENANCE</option>
+                    </select>
+                </td>
+
+                <td *ngIf="editingId !== avion.id">{{ avion.hangarId }}</td>
+                <td *ngIf="editingId === avion.id">
+                    <select [(ngModel)]="avion.hangarId" name="hangar-{{avion.id}}">
+                        <option [ngValue]="null">--Aucun--</option>
+                        <option *ngFor="let h of hangars" [ngValue]="h.id">
+                            Hangar {{ h.id }} (Capacité {{ h.capacite }})
+                        </option>
+                    </select>
+                </td>
+
+                <td *ngIf="editingId !== avion.id">
+                    {{ avion.volIds?.join(', ') }}
+                </td>
+
+                <td *ngIf="editingId === avion.id">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Vols</mat-label>
+                        <mat-select
+                                [(ngModel)]="avion.volIds"
+                                name="vols-{{ avion.id }}"
+                                multiple
+                        >
+                            <mat-option *ngFor="let v of vols" [value]="v.id">
+                                vol {{ v.id }} ({{ v.numeroVol }})
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </td>
+
+                <td class="actions-cell">
+                    <button class="btn btn-danger btn-sm" (click)="supprimerAvion(avion.id)" title="Supprimer">Supprimer</button>
+                    <button class="btn btn-warning btn-sm" *ngIf="editingId !== avion.id" (click)="modifierAvion(avion.id)" title="Modifier">Modifier</button>
+                    <button class="btn btn-success btn-sm" *ngIf="editingId === avion.id" (click)="sauvegarderModification()" title="Sauvegarder">Sauvegarder</button>
+                    <button class="btn btn-secondary btn-sm" *ngIf="editingId === avion.id" (click)="annulerModification()" title="Annuler">Annuler</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div *ngIf="avions.length === 0" class="empty-state">
+        <div class="empty-icon">✈️</div>
+        <h3>Aucun avion trouvé</h3>
+        <p>Commencez par ajouter votre premier avion ci-dessus</p>
+    </div>
+</div>
+

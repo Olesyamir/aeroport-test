@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: "pc_koteam"
+
+  datasource:
+    url: jdbc:postgresql://db:5432/DBAirportManager
+    username: postgres
+    password: Postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+server:
+  port: 8080
+
+external:
+  vols:
+    bja:
+      departs-url: "http://129.88.210.231:8080/api/vols/partage/BJA/departs"
+
+# pour test
+#  profiles:
+#    active: test

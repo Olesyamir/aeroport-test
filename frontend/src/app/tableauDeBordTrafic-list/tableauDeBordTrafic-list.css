@@ -1,0 +1,75 @@
+@import "../vol-list/vol-list.css";
+
+:host {
+  display: block;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  background: linear-gradient(135deg, #051932, #1f3a55);
+}
+
+.page-header h1 {
+  font-size: 2.8rem;
+}
+
+.page-header .subtitle {
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Grille de stats du tableau de bord */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem 2rem;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+  margin-bottom: 0.3rem;
+}
+
+.form-group div {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #051932;
+}
+
+.card-header h3 {
+  font-size: 1.2rem;
+}
+
+.card-header .badge {
+  background: #283c55;
+}
+
+.modern-table th:nth-child(1),
+.modern-table td:nth-child(1) {
+  width: 60px;
+}
+
+.modern-table th:nth-child(2) {
+  width: 120px;
+}
+
+.modern-table th:nth-child(5) {
+  width: 180px;
+}
+
+.modern-table td:nth-child(5) {
+  font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.8rem;
+  color: #374151;
+}
+
+.empty-state {
+  padding: 3rem 2rem;
+}

@@ -1,0 +1,326 @@
+<script src="../data/Piste.ts"></script>
+<script src="../services/avionService/avion.ts"></script>
+<script src="vol-list.ts"></script>
+
+<div class="page-header">
+  <h1>Gestion des vols</h1>
+  <p class="subtitle">Gérez votre flotte de vols en temps réel</p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Rechercher le statut d'un vol</h3>
+  </div>
+  <form (ngSubmit)="rechercherStatutVol()" class="form-grid">
+    <div class="form-group">
+      <label for="searchVolId">ID du vol</label>
+      <input
+        id="searchVolId"
+        type="number"
+        [(ngModel)]="searchVolId"
+        name="searchVolId"
+        min="1">
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-secondary">Rechercher</button>
+    </div>
+  </form>
+
+  <div *ngIf="statutVolRecherche" class="empty-state">
+    <p>Statut du vol {{ searchVolId }} : {{ statutVolRecherche }}</p>
+  </div>
+
+  <div *ngIf="!statutVolRecherche && erreurRechercheStatut" class="empty-state">
+    <p>{{ erreurRechercheStatut }}</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Ajouter un nouveau vol</h3>
+  </div>
+  <form (ngSubmit)="ajouterVol()" #volForm="ngForm" class="form-grid">
+    <div class="form-group">
+      <label for="numeroVol">Numéro du vol</label>
+      <input
+        id="numeroVol"
+        type="text"
+        [(ngModel)]="newVol.numeroVol"
+        name="numeroVol"
+        placeholder="Ex: AF1234"
+        required>
+    </div>
+
+    <div class="form-group">
+      <label for="compagnie">Compagnie</label>
+      <input
+        id="compagnie"
+        type="text"
+        [(ngModel)]="newVol.compagnie"
+        name="compagnie"
+        required>
+    </div>
+
+    <div class="form-group">
+      <label>Origine (aéroport)</label>
+      <div class="readonly-field">
+        {{ anwaysAeroport?.nom || 'Anways' }}
+        ({{ anwaysAeroport?.codeIATA || 'AWY' }})
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="destination">Destination (aéroport)</label>
+      <select
+        id="destination"
+        [(ngModel)]="newVol.destinationId"
+        name="destinationId"
+        required>
+        <option [ngValue]="null">--Aucune--</option>
+        <option *ngFor="let a of aeroports" [ngValue]="a.id">
+          {{ a.nom }} ({{ a.codeIATA }})
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="dateDepart">Date départ</label>
+      <input
+        id="dateDepart"
+        type="datetime-local"
+        [(ngModel)]="newVol.dateDepart"
+        name="dateDepart"
+        required>
+    </div>
+
+    <div class="form-group">
+      <label for="dateArrivee">Date arrivée</label>
+      <input
+        id="dateArrivee"
+        type="datetime-local"
+        [(ngModel)]="newVol.dateArrivee"
+        name="dateArrivee"
+        required>
+    </div>
+
+    <div class="form-group">
+      <label for="statut">Statut</label>
+      <select
+        id="statut"
+        [(ngModel)]="newVol.statut"
+        name="statut"
+        required>
+        <option value="">--Sélectionner--</option>
+        <option value="PREVU">PREVU</option>
+        <option value="ENATTENTE">EN ATTENTE</option>
+        <option value="EMBARQUEMENT">EMBARQUEMENT</option>
+        <option value="DECOLLE">DECOLLE</option>
+        <option value="ENVOL">ENVOL</option>
+        <option value="ARRIVE">ARRIVE</option>
+        <option value="ANNULE">ANNULE</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="typeVol">Type de vol</label>
+      <select
+        id="typeVol"
+        [(ngModel)]="newVol.typeVol"
+        name="typeVol"
+        required>
+        <option value="">--Sélectionner--</option>
+        <option value="SURCLASSE">SURCLASSE</option>
+        <option value="NORMAL">NORMAL</option>
+        <option value="TEST">TEST</option>
+        <option value="URGENCE">URGENCE</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="avion">Avion</label>
+      <select
+        id="avion"
+        [(ngModel)]="newVol.avionId"
+        name="avion">
+        <option [ngValue]="null">--Aucune--</option>
+        <option *ngFor="let a of avions" [ngValue]="a.id">
+          avion {{ a.id }} ({{ a.nom }})
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="pisteDecollage">Piste décollage</label>
+      <select
+        id="pisteDecollage"
+        [(ngModel)]="newVol.pisteDecollageId"
+        name="pisteDecollageId">
+        <option [ngValue]="null">--Aucune--</option>
+        <option *ngFor="let pd of pistesDecollages" [ngValue]="pd.id">
+          Piste {{ pd.id }} ({{ pd.etat }})
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="pisteAtterrissage">Piste atterrissage</label>
+      <select
+        id="pisteAtterrissage"
+        [(ngModel)]="newVol.pisteAtterissageId"
+        name="pisteAtterissageId">
+        <option [ngValue]="null">--Aucune--</option>
+        <option *ngFor="let pa of pistesAtterissages" [ngValue]="pa.id">
+          Piste {{ pa.id }} ({{ pa.etat }})
+        </option>
+      </select>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Ajouter un vol</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Liste des vols</h3>
+    <span class="badge" *ngIf="vols.length > 0">{{ vols.length }} vols</span>
+  </div>
+
+  <div *ngIf="vols.length === 0" class="empty-state">
+    <div class="empty-icon">✈️</div>
+    <h3>Aucun vol pour le moment</h3>
+    <p>Créez un vol avec le formulaire ci-dessus pour l'afficher ici.</p>
+  </div>
+
+  <div *ngIf="vols.length > 0" class="table-container">
+    <table class="modern-table">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Numéro</th>
+        <th>Compagnie</th>
+        <th>Origine</th>
+        <th>Destination</th>
+        <th>Date départ</th>
+        <th>Date arrivée</th>
+        <th>Avion</th>
+        <th>Piste atterrissage</th>
+        <th>Statut</th>
+        <th>Type</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let v of vols" class="table-row">
+        <td>{{ v.id }}</td>
+
+        <td *ngIf="editingId !== v.id">{{ v.numeroVol }}</td>
+        <td *ngIf="editingId === v.id">
+          <input [(ngModel)]="v.numeroVol" name="numeroVol-{{ v.id }}">
+        </td>
+
+        <td *ngIf="editingId !== v.id">{{ v.compagnie }}</td>
+        <td *ngIf="editingId === v.id">
+          <input [(ngModel)]="v.compagnie" name="compagnie-{{ v.id }}">
+        </td>
+
+        <td>{{ getAeroportCodeById(v.origineId) }}</td>
+
+        <td *ngIf="editingId !== v.id">{{ getAeroportCodeById(v.destinationId) }}</td>
+        <td *ngIf="editingId === v.id">
+          <select [(ngModel)]="v.destinationId" name="destination-{{ v.id }}">
+            <option [ngValue]="null">--Aucune--</option>
+            <option *ngFor="let a of aeroports" [ngValue]="a.id">
+              {{ a.nom }} ({{ a.codeIATA }})
+            </option>
+          </select>
+        </td>
+
+        <td *ngIf="editingId !== v.id">{{ v.dateDepart }}</td>
+        <td *ngIf="editingId === v.id">
+          <input type="datetime-local" [(ngModel)]="v.dateDepart" name="dateDepart-{{ v.id }}">
+        </td>
+
+        <td *ngIf="editingId !== v.id">{{ v.dateArrivee }}</td>
+        <td *ngIf="editingId === v.id">
+          <input type="datetime-local" [(ngModel)]="v.dateArrivee" name="dateArrivee-{{ v.id }}">
+        </td>
+
+        <td *ngIf="editingId !== v.id">{{ getAvionLabelById(v.avionId) }}</td>
+        <td *ngIf="editingId === v.id">
+          <select [(ngModel)]="v.avionId" name="avion-{{ v.id }}">
+            <option [ngValue]="null">--Aucune--</option>
+            <option *ngFor="let a of avions" [ngValue]="a.id">
+              avion {{ a.id }} ({{ a.nom }})
+            </option>
+          </select>
+        </td>
+
+        <td *ngIf="editingId !== v.id">{{ getPisteLabelById(v.pisteAtterissageId) }}</td>
+        <td *ngIf="editingId === v.id">
+          <select [(ngModel)]="v.pisteAtterissageId" name="pisteAtterissage-{{ v.id }}">
+            <option [ngValue]="null">--Aucune--</option>
+            <option *ngFor="let p of pistesAtterissages" [ngValue]="p.id">
+              Piste {{ p.id }} ({{ p.etat }})
+            </option>
+          </select>
+        </td>
+
+        <td *ngIf="editingId !== v.id">{{ v.statut }}</td>
+        <td *ngIf="editingId === v.id">
+          <select [(ngModel)]="v.statut" name="statut-{{ v.id }}">
+            <option value="PREVU">PREVU</option>
+            <option value="ENATTENTE">ENATTENTE</option>
+            <option value="EMBARQUEMENT">EMBARQUEMENT</option>
+            <option value="DECOLLE">DECOLLE</option>
+            <option value="ENVOL">ENVOL</option>
+            <option value="ARRIVE">ARRIVE</option>
+            <option value="ANNULE">ANNULE</option>
+          </select>
+        </td>
+
+        <td *ngIf="editingId !== v.id">{{ v.typeVol }}</td>
+        <td *ngIf="editingId === v.id">
+          <select [(ngModel)]="v.typeVol" name="typeVol-{{ v.id }}">
+            <option value="SURCLASSE">SURCLASSE</option>
+            <option value="NORMAL">NORMAL</option>
+            <option value="TEST">TEST</option>
+            <option value="URGENCE">URGENCE</option>
+          </select>
+        </td>
+        <td class="actions-cell">
+          <button
+            type="button"
+            class="btn btn-sm btn-danger"
+            (click)="supprimerVol(v.id)">
+            Supprimer
+          </button>
+          <button
+            type="button"
+            class="btn btn-warning btn-sm"
+            *ngIf="editingId !== v.id"
+            (click)="modifierVol(v.id)">
+            Modifier
+          </button>
+          <button
+            type="button"
+            class="btn btn-success btn-sm"
+            *ngIf="editingId === v.id"
+            (click)="sauvegarderModification()">
+            Sauvegarder
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            *ngIf="editingId === v.id"
+            (click)="annulerModification()">
+            Annuler
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+

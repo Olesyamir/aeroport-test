@@ -1,0 +1,313 @@
+<div class="page-header">
+  <h1>Tableau de bord trafic</h1>
+  <p class="subtitle">Vue synthétique du trafic par aéroport</p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Sélection de l'aéroport</h3>
+  </div>
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="aeroport">Aéroport</label>
+      <select
+        id="aeroport"
+        [(ngModel)]="selectedAeroportId"
+        name="aeroport"
+        (change)="changerAeroport()">
+        <option [ngValue]="null">-- Sélectionner --</option>
+        <option *ngFor="let a of aeroports" [ngValue]="a.id">
+          {{ a.nom }} ({{ a.codeIATA }})
+        </option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="selectedAeroportId" class="card">
+  <div class="card-header">
+    <h3>Recherche de vols</h3>
+  </div>
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="statutFiltre">Filtrer par statut</label>
+      <select
+        id="statutFiltre"
+        [(ngModel)]="filtreStatut"
+        name="filtreStatut">
+        <option value="">-- Sélectionner --</option>
+        <option value="PREVU">PREVU</option>
+        <option value="ENATTENTE">EN ATTENTE</option>
+        <option value="EMBARQUEMENT">EMBARQUEMENT</option>
+        <option value="DECOLLE">DECOLLE</option>
+        <option value="ENVOL">ENVOL</option>
+        <option value="ARRIVE">ARRIVE</option>
+        <option value="ANNULE">ANNULE</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="chargerVolsParStatut()">
+        Rechercher
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="chargerVolsEnCours()">
+        Vols en cours
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="erreurFiltre" class="empty-state">
+    <p>{{ erreurFiltre }}</p>
+  </div>
+
+  <div *ngIf="volsParStatut.length > 0" class="table-container">
+    <h3>Vols par statut</h3>
+    <table class="modern-table">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Numéro</th>
+        <th>Compagnie</th>
+        <th>Origine</th>
+        <th>Destination</th>
+        <th>Date départ</th>
+        <th>Date arrivée</th>
+        <th>Statut</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let v of volsParStatut" class="table-row">
+        <td>{{ v.id }}</td>
+        <td>{{ v.numeroVol }}</td>
+        <td>{{ v.compagnie }}</td>
+        <td>{{ v.origineNom }} ({{ v.origineCodeIATA }})</td>
+        <td>{{ v.destinationNom }} ({{ v.destinationCodeIATA }})</td>
+        <td>{{ v.dateDepart }}</td>
+        <td>{{ v.dateArrivee }}</td>
+        <td>{{ v.statut }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="volsEnCours.length > 0" class="table-container">
+    <h3>Vols en cours</h3>
+    <table class="modern-table">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Numéro</th>
+        <th>Compagnie</th>
+        <th>Origine</th>
+        <th>Destination</th>
+        <th>Date départ</th>
+        <th>Date arrivée</th>
+        <th>Statut</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let v of volsEnCours" class="table-row">
+        <td>{{ v.id }}</td>
+        <td>{{ v.numeroVol }}</td>
+        <td>{{ v.compagnie }}</td>
+        <td>{{ v.origineNom }} ({{ v.origineCodeIATA }})</td>
+        <td>{{ v.destinationNom }} ({{ v.destinationCodeIATA }})</td>
+        <td>{{ v.dateDepart }}</td>
+        <td>{{ v.dateArrivee }}</td>
+        <td>{{ v.statut }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Vols partenaires</h3>
+  </div>
+  <div class="form-grid">
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="chargerVolsBjaDepart()">
+        Vols sortants
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="chargerVolsBjaArrivee()">
+        Vols entrants
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="erreurPartenaires" class="empty-state">
+    <p>{{ erreurPartenaires }}</p>
+  </div>
+
+  <div *ngIf="volsBjaDepart.length > 0" class="table-container">
+    <h3>Vols sortants</h3>
+    <table class="modern-table">
+      <thead>
+      <tr>
+        <th>Numéro</th>
+        <th>Origine</th>
+        <th>Destination</th>
+        <th>Date départ</th>
+        <th>Date arrivée</th>
+        <th>Statut</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let v of volsBjaDepart" class="table-row">
+        <td>{{ v.numeroVol }}</td>
+        <td>{{ v.origineNom }} ({{ v.origineCodeIATA }})</td>
+        <td>{{ v.destinationNom }} ({{ v.destinationCodeIATA }})</td>
+        <td>{{ v.dateDepart }}</td>
+        <td>{{ v.dateArrivee }}</td>
+        <td>{{ v.statut }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="volsBjaArrivee.length > 0" class="table-container">
+    <h3>Vols entrants</h3>
+    <table class="modern-table">
+      <thead>
+      <tr>
+        <th>Numéro</th>
+        <th>Origine</th>
+        <th>Destination</th>
+        <th>Date départ</th>
+        <th>Date arrivée</th>
+        <th>Statut</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let v of volsBjaArrivee" class="table-row">
+        <td>{{ v.numeroVol }}</td>
+        <td>{{ v.origineNom }} ({{ v.origineCodeIATA }})</td>
+        <td>{{ v.destinationNom }} ({{ v.destinationCodeIATA }})</td>
+        <td>{{ v.dateDepart }}</td>
+        <td>{{ v.dateArrivee }}</td>
+        <td>{{ v.statut }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div *ngIf="erreur" class="card">
+  <div class="card-header">
+    <h3>Erreur</h3>
+  </div>
+  <div class="empty-state">
+    <p>{{ erreur }}</p>
+  </div>
+</div>
+
+<div *ngIf="chargement" class="card">
+  <div class="empty-state">
+    <p>Chargement du tableau de bord...</p>
+  </div>
+</div>
+
+<div *ngIf="!chargement && tableau" class="card">
+  <div class="card-header">
+    <h3>Statistiques générales - {{ tableau.aeroportNom }} ({{ tableau.aeroportCodeIATA }})</h3>
+  </div>
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Total vols sortants</label>
+      <div>{{ tableau.statistiques.totalVolsDepart }}</div>
+    </div>
+    <div class="form-group">
+      <label>Total vols entrants</label>
+      <div>{{ tableau.statistiques.totalVolsArrivee }}</div>
+    </div>
+    <div class="form-group">
+      <label>Vols en cours</label>
+      <div>{{ tableau.statistiques.volsEnCours }}</div>
+    </div>
+    <div class="form-group">
+      <label>Vols retardés</label>
+      <div>{{ tableau.statistiques.volsRetardes }}</div>
+    </div>
+    <div class="form-group">
+      <label>Vols annulés</label>
+      <div>{{ tableau.statistiques.volsAnnules }}</div>
+    </div>
+    <div class="form-group">
+      <label>Taux occupation pistes</label>
+      <div>{{ tableau.statistiques.tauxOccupationPistes }} %</div>
+    </div>
+    <div class="form-group">
+      <label>Taux occupation hangars</label>
+      <div>{{ tableau.statistiques.tauxOccupationHangars }} %</div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!chargement && tableau?.volsDepart?.length" class="card">
+  <div class="card-header">
+    <h3>Vols sortants de l'aéroport sélectionné</h3>
+  </div>
+  <div class="table-container">
+    <table class="modern-table">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Numéro</th>
+        <th>Compagnie</th>
+        <th>Origine</th>
+        <th>Destination</th>
+        <th>Date départ</th>
+        <th>Date arrivée</th>
+        <th>Statut</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let v of tableau!.volsDepart" class="table-row">
+        <td>{{ v.id }}</td>
+        <td>{{ v.numeroVol }}</td>
+        <td>{{ v.compagnie }}</td>
+        <td>{{ v.origineNom }} ({{ v.origineCodeIATA }})</td>
+        <td>{{ v.destinationNom }} ({{ v.destinationCodeIATA }})</td>
+        <td>{{ v.dateDepart }}</td>
+        <td>{{ v.dateArrivee }}</td>
+        <td>{{ v.statut }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div *ngIf="!chargement && tableau?.volsArrivee?.length" class="card">
+  <div class="card-header">
+    <h3>Vols entrants de l'aéroport sélectionné</h3>
+  </div>
+  <div class="table-container">
+    <table class="modern-table">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Numéro</th>
+        <th>Compagnie</th>
+        <th>Origine</th>
+        <th>Destination</th>
+        <th>Date départ</th>
+        <th>Date arrivée</th>
+        <th>Statut</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let v of tableau!.volsArrivee" class="table-row">
+        <td>{{ v.id }}</td>
+        <td>{{ v.numeroVol }}</td>
+        <td>{{ v.compagnie }}</td>
+        <td>{{ v.origineNom }} ({{ v.origineCodeIATA }})</td>
+        <td>{{ v.destinationNom }} ({{ v.destinationCodeIATA }})</td>
+        <td>{{ v.dateDepart }}</td>
+        <td>{{ v.dateArrivee }}</td>
+        <td>{{ v.statut }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+

@@ -1,0 +1,40 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Avion{
+    immatriculation
+    type
+    capacite
+    etat: EtatMateriel
+    couleur: string
+}
+
+
+class Piste {
+    id
+    longueur
+    etat: Etat
+}
+
+class Hangar {
+    id
+    capacite
+    etat: Etat
+}
+
+enum EtatMateriel {
+    AUSOL,
+    ENVOL,
+    MAINTENANCE
+}
+
+enum Etat{
+    LIBRE,
+    OCCUPE,
+    MAINTENANCE
+}
+
+Avion "*" -- "1" Piste
+Avion "*" -- "1" Hangar
+
+@enduml
